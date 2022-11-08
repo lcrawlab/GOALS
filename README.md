@@ -38,9 +38,9 @@ For macOS users, the Xcode Command Line Tools include a GCC compiler. Instructio
 
 ## Demonstration and Tutorials for GOALS
 
-The '''Software''' folder contains all necessary software to run GOALS. Note that '''RATE.R''' is only necessary for the '''PowerComparisons.R''' tutorial.
+The `Software` folder contains all necessary software to run GOALS. Note that '''RATE.R''' is only necessary for the '''PowerComparisons.R''' tutorial.
 
-The '''Tutorial''' folder contains a tutorial on global variable selection, a tutorial on local variable selection, and a Power Comparison of GOALS to other variable selection methods. Here, we consider a simple (and small) genetics example where we simulate genotype data for n individuals with p measured genetic variants. We then randomly select a small number of these predictor variables to be causal and have true association with the generated (continuous) phenotype. These scripts are meant to illustrate proof of concepts and specifically demonstrate (1) the calculation of the Gaussian Kernel, (2) the precalculations and the calculation of the delta GOALS matrix Additional packages needed for the tutorials are in the README.md file in that folder. 
+The `Tutorial` folder contains a tutorial on global variable selection, a tutorial on local variable selection, and a Power Comparison of GOALS to other variable selection methods. Here, we consider a simple (and small) genetics example where we simulate genotype data for n individuals with p measured genetic variants. We then randomly select a small number of these predictor variables to be causal and have true association with the generated (continuous) phenotype. These scripts are meant to illustrate proof of concepts and specifically demonstrate (1) the calculation of the Gaussian Kernel, (2) the precalculations and the calculation of the delta GOALS matrix Additional packages needed for the tutorials are in the README.md file in that folder. 
 
 ## Relevant Citations
 
