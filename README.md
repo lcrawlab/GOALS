@@ -16,6 +16,8 @@ The GOALS software requires the installation of the following R libraries:
 
 [Matrix](https://cran.r-project.org/web/packages/Matrix/index.html)
 
+[svd](https://cran.r-project.org/web/packages/svd/index.html)
+
 [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
 
 [RcppArmadillo](https://cran.r-project.org/web/packages/RcppArmadillo/index.html)
