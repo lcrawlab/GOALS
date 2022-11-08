@@ -46,7 +46,11 @@ The `Tutorial` folder contains a tutorial on global variable selection, a tutori
 
 ## Relevant Citations
 
-Goals paper, RATE paper, BAKR?
+E.T. Winn-Nuñez, M. Griffin, and L. Crawford (2022). Revisiting the Effect Size Analog for Nonlinear Regression: A Simpler Approach for Interpretability. In preparation.
+
+L. Crawford, S.R. Flaxman, D.E. Runcie, and M. West (2019). Variable prioritization in nonlinear black box methods: a genetic association case study. Annals of Applied Statistics. 13(2): 958-989.
+
+L. Crawford, K.C. Wood, X. Zhou, and S. Mukherjee (2018). Bayesian approximate kernel regression with variable selection. Journal of the American Statistical Association. 113(524): 1710-1721.
 
 ## Questions and Feedback
 
