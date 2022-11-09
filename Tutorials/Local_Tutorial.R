@@ -114,6 +114,7 @@ y=c(y,y2)
 
 n = dim(X)[1] #Sample size
 p = dim(X)[2] #Number of markers or genes
+sigma2 = 1e-3
 
 ### Find the Approximate Basis and Kernel Matrix; Choose N <= D <= P ###
 B = GaussKernel(t(X)); diag(B)=1
