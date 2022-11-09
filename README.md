@@ -6,7 +6,7 @@ When calculating the influence a varaible has on a model, there is a tension bet
 
 The GOALS software requires the installation of the following R libraries:
 
-[adagenet](https://cran.r-project.org/web/packages/adegenet/index.html)
+[adegenet](https://cran.r-project.org/web/packages/adegenet/index.html)
 
 [BAKR](https://github.com/lorinanthony/BAKR) (via GitHub) (Note that the latest BAKR functions are in the `Software` directory for GOALS.)
 
