@@ -36,7 +36,7 @@ Alternatively, one can also [install R packages from the command line](http://cr
 
 ## C++ Packages for GOALS
 
-The code in this repository assumes that basic C++ functions and applications are already set up on the running personal computer or cluster. If not, the functions and necessary Rcpp packages to build nonlinear covariance matrices (e.g. BAKR) and fit a GP regression model will not work properly. A simple option is to use [gcc](https://gcc.gnu.org/). macOS users may use this collection by installing the [Homebrew package manager](http://brew.sh/index.html) and then typing the following into the terminal:
+The code in this repository assumes that basic C++ functions and applications are already set up on the running personal computer or cluster. If not, the functions and necessary Rcpp packages to build nonlinear covariance matrices (e.g., BAKR and RATE) and fit a GP regression model will not work properly. A simple option is to use [gcc](https://gcc.gnu.org/). macOS users may use this collection by installing the [Homebrew package manager](http://brew.sh/index.html) and then typing the following into the terminal:
 
     brew install gcc
 
