@@ -1,8 +1,8 @@
-# A Simple Approach for Local and Global Variable Importance in Nonlinear Regression Models
+# GOALS: A Simple Approach for Local and Global Variable Importance in Nonlinear Regression Models
 
 The ability to interpret machine learning models has become increasingly important as their usage  in data science continues to rise. Most current interpretability methods are optimized to work on either (i) a global scale, where the goal is to rank features based on their contributions to overall variation in an observed population, or (ii) the local level, which aims to detail on how important a feature is to a particular individual in the dataset. In this work, we present the "GlObal And Local Score" (GOALS) operator: a simple _post hoc_ approach to simultaneously assess local and global feature variable importance in nonlinear models. Motivated by problems in statistical genetics, we demonstrate our approach using Gaussian process regression where understanding how genetic markers affect trait architecture both among individuals and across populations is of high interest. With detailed simulations and real data analyses, we illustrate the flexible and efficient utility of GOALS over state-of-the-art variable importance strategies.
 
-## R Packages for GOALS
+## R Packages for GOALS and Tutorials
 
 The GOALS software requires the installation of the following R libraries:
 
@@ -34,7 +34,7 @@ Note that the latest BAKR and RATE functions are also included in the `Software`
 
 Alternatively, one can also [install R packages from the command line](http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installing-packages).
 
-## C++ Packages for GOALS
+## C++ Packages for GOALS and Tutorials
 
 The code in this repository assumes that basic C++ functions and applications are already set up on the running personal computer or cluster. If not, the functions and necessary Rcpp packages to build nonlinear covariance matrices (e.g., BAKR and RATE) and fit a GP regression model will not work properly. A simple option is to use [gcc](https://gcc.gnu.org/). macOS users may use this collection by installing the [Homebrew package manager](http://brew.sh/index.html) and then typing the following into the terminal:
 
@@ -54,7 +54,7 @@ E.T. Winn-Nuñez, M. Griffin, and L. Crawford (2022). A simple approach for loca
 
 J. Ish-Horowicz*, D. Udwin*, S.R. Flaxman, S.L. Filippi, and L. Crawford (2019). Interpreting deep neural networks through variable importance. _arXiv_. 1901.09839.
 
-L. Crawford, S.R. Flaxman, D.E. Runcie, and M. West (2019). Variable prioritization in nonlinear black box methods: a genetic association case study. _Annals of Applied Statistics_. 13(2): 958-989.
+L. Crawford, S.R. Flaxman, D.E. Runcie, and M. West (2019). Variable prioritization in nonlinear black box methods: a genetic association case study. _Annals of Applied Statistics_. **13**(2): 958-989.
 
 L. Crawford, K.C. Wood, X. Zhou, and S. Mukherjee (2018). Bayesian approximate kernel regression with variable selection. _Journal of the American Statistical Association_. **113**(524): 1710-1721.
 
