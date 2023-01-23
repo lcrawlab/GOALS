@@ -60,4 +60,4 @@ L. Crawford, K.C. Wood, X. Zhou, and S. Mukherjee (2018). Bayesian approximate k
 
 ## Questions and Feedback
 
-Please send any questions or feedback to the corresponding authors Emily Winn-Nuñez (emily_winn@brown.edu) or Lorin Crawford (lorin_crawford@brown.edu).
+Please send any questions or feedback to the corresponding authors [Emily Winn-Nuñez](mailto:emily_winn@brown.edu) or [Lorin Crawford](mailto:lcrawford@microsoft.com).
