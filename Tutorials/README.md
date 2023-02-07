@@ -17,6 +17,6 @@ The GOALS tutorial and examples require the additional installation of the follo
 
 Once again, the easiest method to install these packages is with the following example command entered in an R shell:
 
-  install.packages("glmnet", dependecies = TRUE)
+    install.packages("glmnet", dependecies = TRUE)
 
 Alternatively, one can also [install R packages from the command line](http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installing-packages).
