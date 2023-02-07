@@ -50,9 +50,9 @@ The `Tutorial` folder contains a tutorial on global variable selection, a tutori
 
 ## Relevant Citations
 
-E.T. Winn-Nuñez, M. Griffin, and L. Crawford (2022). A simple approach for local and global variable importance in nonlinear regression models. _arXiv_.
+E.T. Winn-Nuñez, M. Griffin, and L. Crawford. A simple approach for local and global variable importance in nonlinear regression models. _arXiv_. 2302.02024.
 
-J. Ish-Horowicz*, D. Udwin*, S.R. Flaxman, S.L. Filippi, and L. Crawford (2019). Interpreting deep neural networks through variable importance. _arXiv_. 1901.09839.
+J. Ish-Horowicz*, D. Udwin*, S.R. Flaxman, S.L. Filippi, and L. Crawford. Interpreting deep neural networks through variable importance. _arXiv_. 1901.09839.
 
 L. Crawford, S.R. Flaxman, D.E. Runcie, and M. West (2019). Variable prioritization in nonlinear black box methods: a genetic association case study. _Annals of Applied Statistics_. **13**(2): 958-989.
 
