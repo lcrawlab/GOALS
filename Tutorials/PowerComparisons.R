@@ -1,22 +1,23 @@
 #NOTE: This script will demonstrate the power of distributional centrality via RATE measures. Specifically it compares:
-#(1) L1- regularized lasso regression; 
+#(1) L1- regularized lasso regression;
 #(2) The combined regularization utilized by the elastic net;
 #(3) RATE, a KL-divergence based variable selection model
 #(4) A genome scan with individual single nucleotide polymorphisms (SNPs) fit via a univariate linear model (SCANONE).
+#(5) GOALS, a measure to assess global and local variable importance.
 
-#NOTE: This script is based on the genetics simulations from Crawford et al. (2018). Here, we simulate 
+#NOTE: This script is based on the genetics simulations from Crawford et al. (2018). Here, we simulate
 #genotype data for n = 2000 individuals with p = 10000 independent genetic variants. We randomly
 #assume that j∗ = 30 are causal and have true association with the generated (continuous)
 #phenotype y. We then assume that the j* predictor variables explain a fixed H2%
 #(phenotypic variance explained; PVE) of the total variance in the response V(y). This
-#parameter H2 can alternatively be described as a factor controlling the signal-to-noise ratio.The 
+#parameter H2 can alternatively be described as a factor controlling the signal-to-noise ratio.The
 #parameter rho represents the proportion of H2 that is contributed by additive effects versus
-#interaction (epistatic) effects. Namely, the additive effects make up rho%, while the pairwise interactions 
+#interaction (epistatic) effects. Namely, the additive effects make up rho%, while the pairwise interactions
 #make up the remaining (1 − rho)%.
 
-#NOTE: We also include a scenario where population stratification effects are introduced into the simulations 
-#by allowing the top 5 genotype principal components (PCs) Z to make up an additional% of the overall variation 
-#in the trait (see variable "pc.var"). The effect sizes for these stratification effects are also drawn 
+#NOTE: We also include a scenario where population stratification effects are introduced into the simulations
+#by allowing the top 5 genotype principal components (PCs) Z to make up an additional% of the overall variation
+#in the trait (see variable "pc.var"). The effect sizes for these stratification effects are also drawn
 #from a standard normal distribution. Alternatively, one can think of the combined effect of the PCs as structured noise.
 
 ######################################################################################
@@ -44,7 +45,10 @@ library(RcppParallel)
 library(varbvs)
 library("pracma")
 
-### Load in the RATE R functions (only need for comparissons) ###
+### Set the working directory to where the BAKR and RATE files are located ###
+# setwd(your_directory_here)
+
+### Load in the RATE R functions (only need for comparisons) ###
 source("RATE.R")
 
 ### Load in the C++ BAKR functions ###
@@ -65,12 +69,12 @@ compute.power <- function(pvals,SNPs){
   x = foreach(i = 1:nsnps)%dopar%{
     v = sort(pvals,decreasing = TRUE)[1:i] #Test Positives
     z = pvals[which(names(pvals)%in%names(v)==FALSE)] #Test Negatives
-    
+
     TP = length(which(names(v)%in%Pos==TRUE))
     FP = length(which(names(v)%in%Pos==FALSE))
     TN = length(which(names(z)%in%Negs==TRUE))
     FN = length(which(names(z)%in%Negs==FALSE))
-    
+
     TPR = TP/(TP+FN); FPR = FP/(FP+TN); FDR = FP/(FP+TP)
     c(TPR,FPR,FDR)
   }
@@ -85,13 +89,13 @@ compute.power <- function(pvals,SNPs){
 set.seed(11151990)
 
 ### Specify the Number of Samples and Genetic Markers ###
-n = 2e3; p = 1e4;
+n = 500; p = 1e3;
 
 ### Set up simulation parameters ###
 pve=0.3; rho=0.5; pc.var = 0; ncausal = 30
 
 ### The Number of Causal Variables ###
-ncausal1= ncausal/6 #Set 1 of causal SNPs 
+ncausal1= ncausal/6 #Set 1 of causal SNPs
 ncausal2 = ncausal-ncausal1 #Set 2 of Causal SNPs
 
 ### Generate the data ###
@@ -105,7 +109,7 @@ s=sample(1:p,ncausal,replace = FALSE)
 s1=sample(s, ncausal1, replace=F)
 s2=sample(s[s%in%s1==FALSE], ncausal2, replace=F)
 
-#Generate the ground-truth regression coefficients for the variables (X). 
+#Generate the ground-truth regression coefficients for the variables (X).
 #Adjust the effects so that the variables (SNPs) explain x percent of the variance in the outcome.
 
 Xcausal1=X[,s1]; Xcausal2=X[,s2];
@@ -129,7 +133,7 @@ beta=beta*sqrt(pve*(1-rho)/var(y_epi))
 y_epi=Xepi%*%beta
 
 ### Compute the Top PCs ###
-PCs = ComputePCs(X,5)
+PCs = ComputePCs(X,10)
 
 ### Define the effects of the PCs ###
 beta=rnorm(dim(PCs)[2])
@@ -158,7 +162,7 @@ colnames(X) = paste("SNP",1:ncol(X),sep="")
 #This function takes on two arguments:
 #(1) The Genotype matrix X. This matrix should be fed in as a pxn matrix. That is, predictor
 #are the rows and subjects/patients/cell lines are the columns.
-#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the 
+#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the
 #Gaussian kernel can be specified as k(u,v) = exp{||u−v||^2/2h^2}.
 
 n = dim(X)[1] #Sample size
@@ -173,7 +177,7 @@ Ainv = nearPD(A_svd$v%*%diag(1/A_svd$d, nrow=n, ncol=n)%*%t(A_svd$u))$mat
 Aiy <- Ainv%*%y
 BAiy <- B %*% Aiy
 IAiB <- (diag(1,nrow=n, ncol=n)-Ainv%*%B)
-BIAiB <- B%*%IAiB  
+BIAiB <- B%*%IAiB
 
 #Calculate Delta
 
@@ -187,7 +191,7 @@ global_delta = abs(colMeans(delta))
 #This function takes on two arguments:
 #(1) The Genotype matrix X. This matrix should be fed in as a pxn matrix. That is, predictor
 #are the rows and subjects/patients/cell lines are the columns.
-#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the 
+#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the
 #Gaussian kernel can be specified as k(u,v) = exp{||u−v||^2/2h^2}.
 
 Kn = GaussKernel(t(Xc)); diag(Kn) = 1
@@ -205,8 +209,8 @@ fhat.rep = rmvnorm(5e3,fhat,Kn - Kn %*% solve(Kn+diag(sigma2,n),Kn))
 ### Run the RATE Function ###
 beta.tilde = t(apply(fhat.rep,1,function(x) return(cov(Xc,x))))
 
-#NOTE: We formally define the effect size analogue as the result of projecting the design 
-#matrix X onto the nonlinear response vector f, where beta = Proj(X,f) = X^+f with X^+ 
+#NOTE: We formally define the effect size analogue as the result of projecting the design
+#matrix X onto the nonlinear response vector f, where beta = Proj(X,f) = X^+f with X^+
 #symbolizing the Moore-Penrose generalized inverse.
 
 ######################################################################################
@@ -215,12 +219,12 @@ beta.tilde = t(apply(fhat.rep,1,function(x) return(cov(Xc,x))))
 
 ### Compute the First Order Centrality of each Predictor Variable ###
 nl = NULL
-res = RATE(X=X,beta.draws = beta.tilde, rank.r=n/4,snp.nms = colnames(X),cores = cores)
+res = RATE(X=X,beta.draws = beta.tilde, rank.r=n/4, low.rank=TRUE, snp.nms = colnames(X),cores = cores)
 
-#The function results in a list with: 
-#(1) The raw Kullback-Leibler divergence measures (RATE$KLD); 
-#(2) The relative centrality measures (RATE$RATE); 
-#(3) The entropic deviance from uniformity (RATE$Detla); and 
+#The function results in a list with:
+#(1) The raw Kullback-Leibler divergence measures (RATE$KLD);
+#(2) The relative centrality measures (RATE$RATE);
+#(3) The entropic deviance from uniformity (RATE$Detla); and
 #(4) The calibrating approximate effect sample size (ESS) measures from importance sampling (Gruber and West, 2016, 2017)
 
 ### Get the Results ###
