@@ -1,36 +1,12 @@
-#NOTE: This script will demonstrate the power of distributional centrality via RATE measures. Specifically it compares:
-#(1) L1- regularized lasso regression;
-#(2) The combined regularization utilized by the elastic net;
-#(3) RATE, a KL-divergence based variable selection model
-#(4) A genome scan with individual single nucleotide polymorphisms (SNPs) fit via a univariate linear model (SCANONE).
-#(5) GOALS, a measure to assess global and local variable importance.
+---
+title: "Power Comparisons Tutorial"
+author: "Emily Winn-Nunez"
+date: "2023-10-20"
+output: pdf_document
+---
 
-#NOTE: This script is based on the genetics simulations from Crawford et al. (2018). Here, we simulate
-#genotype data for n = 500 individuals with p = 1000 independent genetic variants. We randomly
-#assume that j∗ = 30 predictors are causal and have true association with the generated (continuous)
-#phenotype y. We then assume that the j* predictor variables explain a fixed H2%
-#(phenotypic variance explained; PVE) of the total variance in the response V(y). This
-#parameter H2 can alternatively be described as a factor controlling the signal-to-noise ratio.The
-#parameter rho represents the proportion of H2 that is contributed by additive effects versus
-#interaction (epistatic) effects. Namely, the additive effects make up rho%, while the pairwise interactions
-#make up the remaining (1 − rho)%.
-
-#NOTE: We also include a scenario where population stratification effects are introduced into the simulations
-#by allowing the top 5 genotype principal components (PCs) Z to make up an additional% of the overall variation
-#in the trait (see variable "pc.var"). The effect sizes for these stratification effects are also drawn
-#from a standard normal distribution. Alternatively, one can think of the combined effect of the PCs as structured noise.
-
-######################################################################################
-######################################################################################
-######################################################################################
-
-### Clear Console ###
-cat("\014")
-
-### Clear Environment ###
-rm(list = ls(all = TRUE))
-
-### Load in the R libraries ###
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(adegenet)
 library(corpcor)
 library(doParallel)
@@ -45,23 +21,50 @@ library(RcppParallel)
 library(varbvs)
 library("pracma")
 
-### Set the working directory to where the BAKR and RATE files are located ###
-# setwd(your_directory_here)
-
 ### Load in the RATE R functions (only need for comparisons) ###
-source("RATE.R")
+source("C:/Users/etwin/git_repos/GOALS/Software/RATE.R")
 
 ### Load in the C++ BAKR functions ###
-sourceCpp("BAKRGibbs.cpp")
+sourceCpp("C:/Users/etwin/git_repos/GOALS/Software/BAKRGibbs.cpp")
 
 cores = detectCores()
 registerDoParallel(cores=cores)
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
+This script will demonstrate the power of distributional centrality via RATE measures. Specifically it compares:
+(1) L1- regularized lasso regression;
+(2) The combined regularization utilized by the elastic net;
+(3) RATE, a KL-divergence based variable selection model
+(4) A genome scan with individual single nucleotide polymorphisms (SNPs) fit via a univariate linear model (SCANONE).
+(5) GOALS, a measure to assess global and local variable importance.
 
-### Define the Compute Power Function ###
+NOTE: This script is based on the genetics simulations from Crawford et al. (2018). Here, we simulate
+genotype data for $n = 500$ individuals with $p = 1000$ independent genetic variants. We randomly
+assume that $j = 30$ predictors are causal and have true association with the generated (continuous)
+phenotype y. We then assume that the $j$ predictor variables explain a fixed $H^2\%$
+(phenotypic variance explained; PVE) of the total variance in the response $V(y)$. This
+parameter $H^2$ can alternatively be described as a factor controlling the signal-to-noise ratio.The
+parameter $\rho$ represents the proportion of $H^2$ that is contributed by additive effects versus
+interaction (epistatic) effects. Namely, the additive effects make up $\rho \%$, while the pairwise interactions
+(epistatic effects) make up the remaining $(1 - \rho)\%$.
+
+NOTE: We also include a scenario where population stratification effects are introduced into the simulations
+by allowing the top 5 genotype principal components (PCs) $Z$ to make up an additional percentage of the overall variation
+in the trait (see variable `pc.var`). The effect sizes for these stratification effects are also drawn
+from a standard normal distribution. Alternatively, one can think of the combined effect of the PCs as structured noise.
+
+```{r, eval=FALSE}
+### Load in the RATE R functions (only need for comparisons) ###
+source("RATE.R")
+### Load in the C++ BAKR functions ###
+sourceCpp("BAKRGibbs.cpp")
+#Register cores
+cores = detectCores()
+registerDoParallel(cores=cores)
+```
+
+## Define the Compute Power Function ##
+```{r}
 compute.power <- function(pvals,SNPs){
   nsnps = length(pvals)
   Pos = SNPs #True Positive Set
@@ -80,11 +83,11 @@ compute.power <- function(pvals,SNPs){
   }
   return(matrix(unlist(x),ncol = 3,byrow = TRUE))
 }
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
+## Simulate Data
 
+```{r}
 ### Set the random seed to reproduce research ###
 set.seed(11151990)
 
@@ -151,20 +154,18 @@ y=(y-mean(y))/(sd(y)) #Centered and Scaled
 
 s = c(s1,s2)
 colnames(X) = paste("SNP",1:ncol(X),sep="")
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
+## Running Bayesian Gaussian Process (GP) and GOALS ##
 
-### Running Bayesian Gaussian Process (GP) and GOALS ###
+### Create the Nonlinear Covariance Matrix with the Gaussian Kernel
+This function takes on two arguments:
+(1) The Genotype matrix $X$. This matrix should be fed in as a $p \times n$ matrix. That is, predictor
+are the rows and subjects/patients/cell lines are the columns.
+(2) The bandwidth (also known as a smoothing parameter or lengthscale) $h$. For example, the
+Gaussian kernel can be specified as $k(u,v) = \exp{||u-v||^2/2h^2}$.
 
-### Create the Nonlinear Covariance Matrix with the Gaussian Kernel ###
-#This function takes on two arguments:
-#(1) The Genotype matrix X. This matrix should be fed in as a pxn matrix. That is, predictor
-#are the rows and subjects/patients/cell lines are the columns.
-#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the
-#Gaussian kernel can be specified as k(u,v) = exp{||u−v||^2/2h^2}.
-
+```{r}
 n = dim(X)[1] #Sample size
 p = dim(X)[2] #Number of markers or genes
 
@@ -184,16 +185,13 @@ BIAiB <- B%*%IAiB
 delta = ComputeESAFast(X, B, as.vector(Aiy), as.vector(BAiy), cores=cores)
 
 global_delta = abs(colMeans(delta))
+```
 
-### Running the Bayesian Gaussian Process (GP) Regression Model ###
+## Running the Bayesian Gaussian Process (GP) Regression Model ###
 
-### Create the Nonlinear Covariance Matrix with the Gaussian Kernel ###
-#This function takes on two arguments:
-#(1) The Genotype matrix X. This matrix should be fed in as a pxn matrix. That is, predictor
-#are the rows and subjects/patients/cell lines are the columns.
-#(2) The bandwidth (also known as a smoothing parameter or lengthscale) h. For example, the
-#Gaussian kernel can be specified as k(u,v) = exp{||u−v||^2/2h^2}.
+Here, we do the same as above but with the centered data instead of the raw data.
 
+```{r}
 Kn = GaussKernel(t(Xc)); diag(Kn) = 1
 
 v=matrix(1, n, 1)
@@ -208,32 +206,32 @@ fhat.rep = rmvnorm(5e3,fhat,Kn - Kn %*% solve(Kn+diag(sigma2,n),Kn))
 
 ### Run the RATE Function ###
 beta.tilde = t(apply(fhat.rep,1,function(x) return(cov(Xc,x))))
+```
 
-#NOTE: We formally define the effect size analogue as the result of projecting the design
-#matrix X onto the nonlinear response vector f, where beta = Proj(X,f) = X^+f with X^+
-#symbolizing the Moore-Penrose generalized inverse.
-
-######################################################################################
-######################################################################################
-######################################################################################
+NOTE: We formally define the effect size analogue as the result of projecting the design
+matrix $X$ onto the nonlinear response vector $f$, where $\beta = \text{Proj}(X,f) = X^\dagger f with X^\dagger$
+symbolizing the Moore-Penrose generalized inverse.
 
 ### Compute the First Order Centrality of each Predictor Variable ###
+
+The function results in a list with:
+(1) The raw Kullback-Leibler divergence measures (RATE$KLD);
+(2) The relative centrality measures (RATE$RATE);
+(3) The entropic deviance from uniformity (RATE$Detla); and
+(4) The calibrating approximate effect sample size (ESS) measures from importance sampling (Gruber and West, 2016, 2017)
+```{r}
 nl = NULL
 res = RATE(X=X,beta.draws = beta.tilde, rank.r=n/4, low.rank=TRUE, snp.nms = colnames(X),cores = cores)
 
-#The function results in a list with:
-#(1) The raw Kullback-Leibler divergence measures (RATE$KLD);
-#(2) The relative centrality measures (RATE$RATE);
-#(3) The entropic deviance from uniformity (RATE$Detla); and
-#(4) The calibrating approximate effect sample size (ESS) measures from importance sampling (Gruber and West, 2016, 2017)
-
 ### Get the Results ###
 rates = res$RATE
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
+## Run other Methods
 
+For comparisson, we run LASSO, ElasticNet, and SCANONE. 
+
+```{r}
 ### LASSO ###
 fit= cv.glmnet(X, y,intercept=FALSE,alpha=1)
 lasso = as.matrix(coef(fit,s = fit$lambda.1se))
@@ -246,12 +244,10 @@ enet = c(enet[-1,])
 
 ### Scan One ###
 lp_scanone = sapply(1:ncol(X),function(i) -log10(summary(lm(y~X[,i]))$coef[2,4]))
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
-
-### Compute the Power of Each Metric ###
+## Compute Power of Each Metric
+```{r}
 b = global_delta; names(b) = colnames(X)
 power.goals = compute.power(b,colnames(X)[s])
 
@@ -266,12 +262,11 @@ power.enet= compute.power(b,colnames(X)[s])
 
 b = lp_scanone; names(b) = colnames(X)
 power.scanone = compute.power(b,colnames(X)[s])
+```
 
-######################################################################################
-######################################################################################
-######################################################################################
+## Plot Results
 
-### Save the Results ###
+```{r}
 PP = cbind(power.goals,power.rate,power.lasso,power.enet,power.scanone)
 auc = c(trapz(PP[,2],PP[,1]),trapz(PP[,5],PP[,4]),trapz(PP[,8],PP[,7]),trapz(PP[,11],PP[,10]),trapz(PP[,14],PP[,13]))
 m = paste(c("GOALS","RATE","LASSO","Elastic Net","SCANONE")," (", round(auc,3), ") ",sep = "")
@@ -284,3 +279,5 @@ lines(PP[,11],PP[,10],type = "l",lty = 6, lwd = 2, col = "forest green")
 lines(PP[,14],PP[,13],type = "l",lty = 2, lwd = 2, col = "orange3")
 legend("bottomright",legend = m, lty =c(1,4,5,6,2), lwd = c(2,2,2,2,2),col = c("blue","magenta","dark red","forest green","orange3"),ncol=2,bty = "n",title = expression(bold("Method (AUC):")))
 abline(a=0, b=1,col="black")
+```
+
